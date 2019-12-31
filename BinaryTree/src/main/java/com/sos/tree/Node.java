@@ -1,71 +1,137 @@
 package com.sos.tree;
 
-public class Node<T> implements Comparable <T>
+public class Node<K, V> implements Comparable <K>
 {
 	private char direction = 'P';
-	private T value;
-	private Node<T> parent;
-	private Node<T> leftChild;
-	private Node<T> rightChild;
-	private Node<T> centerChild;
+	private K key;
+	private V value;
+	private Node<K,V> parent;
+	private Node<K,V> leftChild;
+	private Node<K,V> rightChild;
 
+	
+	
+	/**
+	 * 
+	 */
 	public Node()
 	{
 		//Do Nothing
 	}
 
-	public Node(T value)
+	
+	/**
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public Node(K key, V value)
 	{
+		setKey(key);
 		setValue(value);
 	}
 
-	public Node(T value, Node<T> parent)
+	
+	/**
+	 * 
+	 * @param key
+	 * @param value
+	 * @param parent
+	 */
+	public Node(K key, V value, Node<K,V> parent)
 	{
-		setValue(value);
+		this(key,value);
 		setParent(parent);
 	}
 
-	public int compareTo(T obj)
+	
+	/**
+	 * 
+	 */
+	public int compareTo(K obj)
 	{
 		if(obj == null)
-			return -1;
+			return Integer.MAX_VALUE;
 		
-		if(obj.equals(this.value))
+		if(obj.hashCode() == key.hashCode() && obj.equals(this.key))
 			return 0;
-		else if(obj.hashCode() > this.value.hashCode())
+		else if(obj.hashCode() > this.key.hashCode())
 			return 1;
-		else if(obj.hashCode() < this.value.hashCode())
+		else if(obj.hashCode() < this.key.hashCode())
 			return -1;
 		else
 			return Integer.MAX_VALUE;
 	}
 
-	public T getValue()
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public K getKey()
 	{
-		return this.value;
+		return this.key;
 	}
 
-	public void setValue(T value)
+	
+	/**
+	 * 
+	 * @param key
+	 */
+	public void setKey(K key)
 	{
+		this.key = key;
+	}
+
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public V getValue() {
+		return value;
+	}
+
+	public void setValue(V value) {
 		this.value = value;
 	}
 
-	public Node<T> getParent()
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Node<K,V> getParent()
 	{
 		return parent;
 	}
 
-	public void setParent(Node<T> parent)
+	
+	/**
+	 * 
+	 * @param parent
+	 */
+	public void setParent(Node<K,V> parent)
 	{
 		this.parent = parent;
 	}
 
-	public Node<T> getLeftChild()
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Node<K,V> getLeftChild()
 	{
 		return leftChild;
 	}
 
-	public void setLeftChild(Node<T> leftChild)
+	
+	/**
+	 * 
+	 * @param leftChild
+	 */
+	public void setLeftChild(Node<K,V> leftChild)
 	{
 		if(leftChild != null)
 		{
@@ -76,12 +142,22 @@ public class Node<T> implements Comparable <T>
 		this.leftChild = leftChild;
 	}
 
-	public Node<T> getRightChild()
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Node<K,V> getRightChild()
 	{
 		return rightChild;
 	}
 
-	public void setRightChild(Node<T> rightChild)
+	
+	/**
+	 * 
+	 * @param rightChild
+	 */
+	public void setRightChild(Node<K,V> rightChild)
 	{
 		if(rightChild != null)
 		{
@@ -91,94 +167,140 @@ public class Node<T> implements Comparable <T>
 		
 		this.rightChild = rightChild;
 	}
-
-	public Node<T> getCenterChild() 
-	{
-		return centerChild;
-	}
-
-	public void setCenterChild(Node<T> centerChild) 
-	{
-		if(centerChild != null)
-		{
-			centerChild.setParent(this);
-			centerChild.setDirection('C');
-		}
-		
-		this.centerChild = centerChild;
-	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean hasChildren()
 	{
 		return (hasLeftChild() || hasRightChild());
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean hasRightChild()
 	{
 		return (rightChild != null);
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean hasLeftChild()
 	{
 		return (leftChild != null);
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean hasParent()
 	{
 		return (parent != null);
 	}
-	
-	public boolean hasCenterChild()
-	{
-		return (this.centerChild != null);
-	}
 
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public char getDirection()
 	{
 		return direction;
 	}
 
+	
+	/**
+	 * 
+	 * @param direction
+	 */
 	public void setDirection(char direction)
 	{
 		this.direction = direction;
 	}
 	
+	
+	/**
+	 * 
+	 */
 	@Override
 	public String toString()
 	{
-		return value.toString()+direction+"("+((parent != null)?parent.getValue():"*")+")";
+		return key.toString()+direction+"("+((parent != null)?parent.getKey():"*")+")";
 	}
 
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public int hashcode()
 	{
-		return value.hashCode();
+		return key.hashCode();
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isLeaf()
 	{
 		return (this.leftChild == null && this.rightChild == null);
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isroot()
 	{
 		return (this.parent == null);
 	}
 	
+	
+	/**
+	 * 
+	 */
+	public void clear()
+	{
+		reset();
+		setKey(null);
+		setValue(null);
+	}
+	
+	
+	/**
+	 * 
+	 */
 	public void reset()
 	{
 		this.parent = null;
 		this.leftChild = null;
 		this.rightChild = null;
-		this.centerChild = null;
 	}
 	
+	
+	/**
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
 	public boolean equals(Object obj)
 	{
 		if(obj instanceof Node)
 		{
-			Node <T> node = (Node <T>)obj;
-			return node.getValue().equals(value);
+			Node <K,V> node = (Node <K,V>)obj;
+			return node.getKey().equals(key);
 		}
 		
 		return false;

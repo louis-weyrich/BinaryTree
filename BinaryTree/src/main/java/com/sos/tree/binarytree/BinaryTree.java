@@ -4,8 +4,10 @@
 package com.sos.tree.binarytree;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import com.sos.tree.KeyValue;
 import com.sos.tree.Node;
 import com.sos.tree.TransverseType;
 import com.sos.tree.Tree;
@@ -14,11 +16,12 @@ import com.sos.tree.Tree;
  * @author louis.weyrich
  *
  */
-public class BinaryTree<T> implements Tree<T>
+public class BinaryTree<K,V> implements Tree<K,V>
 {
 	
-	private Node <T> root;
+	private Node <K,V> root;
 
+	
 	/**
 	 * 
 	 */
@@ -27,46 +30,58 @@ public class BinaryTree<T> implements Tree<T>
 		// Do Nothing
 	}
 	
-	public BinaryTree(Node<T> rootNode)
+	
+	/**
+	 * 
+	 * @param rootNode
+	 */
+	public BinaryTree(Node<K,V> rootNode)
 	{
 		this.root = rootNode;
 	}
 	
-	public Node <T> getRoot()
+	
+	/**
+	 * 
+	 */
+	public Node <K,V> getRoot()
 	{
 		return this.root;
 	}
 
 	
-	public char add(T value)
+	/**
+	 * 
+	 */
+	public boolean add(K key, V value)
 	{
 		if(this.root == null)
 		{
-			this.root = new Node <T>(value, null);
-			return root.getDirection();
+			this.root = new Node <K,V>(key, null);
+			root.setValue(value);
+			return true;
 		}
 		else
 		{
-			Node <T> tempNode = this.root;
+			Node <K,V> tempNode = this.root;
 			int result = -1;
 			
 			while(tempNode != null && result != 0)
 			{
-				result = tempNode.compareTo(value);
+				result = tempNode.compareTo(key);
 				
 				if(result == 0)
 				{
-					Node <T> newNode = new Node <T> (value);
-					tempNode.setCenterChild(newNode);
-					return newNode.getDirection();
+					tempNode.setValue(value);
+					return false;
 				}
 				else if(result == 1)
 				{
 					if(tempNode.getRightChild() == null)
 					{
-						Node <T> newNode = new Node <T> (value);
+						Node <K,V> newNode = new Node <K,V> (key, value);
 						tempNode.setRightChild(newNode);
-						return newNode.getDirection();
+						return true;
 					}
 					else
 					{
@@ -77,9 +92,9 @@ public class BinaryTree<T> implements Tree<T>
 				{
 					if(tempNode.getLeftChild() == null)
 					{
-						Node <T> newNode = new Node <T> (value);
+						Node <K,V> newNode = new Node <K,V> (key, value);
 						tempNode.setLeftChild(newNode);
-						return newNode.getDirection();
+						return true;
 					}
 					else
 					{
@@ -89,23 +104,25 @@ public class BinaryTree<T> implements Tree<T>
 				
 			}
 			
-			return '-';
+			return false;
 		}
-		
 	}
 
 	
-	public Node<T> remove(T value)
+	/**
+	 * 
+	 */
+	public Node<K,V> remove(K value)
 	{
-		Node <T> nodeFound = find(value);
+		Node <K,V> nodeFound = find(value);
 		if(nodeFound.isroot())
 		{
-			Node <T> rightChild = nodeFound.getRightChild();
-			Node <T> leftChild = nodeFound.getLeftChild();
+			Node <K,V> rightChild = nodeFound.getRightChild();
+			Node <K,V> leftChild = nodeFound.getLeftChild();
 			
 			if(leftChild != null)
 			{
-				Node <T> leftChildsRight = leftChild.getRightChild();
+				Node <K,V> leftChildsRight = leftChild.getRightChild();
 				
 				while(leftChildsRight.getRightChild() != null)
 				{
@@ -114,7 +131,7 @@ public class BinaryTree<T> implements Tree<T>
 				
 				leftChildsRight.setParent(null);
 				this.root = leftChildsRight;
-				Node <T> leftchildsRightLeft = leftChildsRight.getLeftChild();
+				Node <K,V> leftchildsRightLeft = leftChildsRight.getLeftChild();
 			
 				while(leftchildsRightLeft != null && leftchildsRightLeft.getLeftChild() != null)
 				{
@@ -132,7 +149,7 @@ public class BinaryTree<T> implements Tree<T>
 		// if leaf null the parents pointer
 		else if(nodeFound.isLeaf())
 		{
-			Node <T> nodeParent = nodeFound.getParent();
+			Node <K,V> nodeParent = nodeFound.getParent();
 			if(nodeFound.getDirection() == 'L')
 			{
 				nodeParent.setLeftChild(null);
@@ -145,8 +162,8 @@ public class BinaryTree<T> implements Tree<T>
 		// if no right child then promote the left child
 		else if(!nodeFound.isLeaf() && nodeFound.getRightChild() == null && nodeFound.getLeftChild() != null)
 		{
-			Node <T> nodeParent = nodeFound.getParent();
-			Node <T> nodeLeft = nodeFound.getLeftChild();
+			Node <K,V> nodeParent = nodeFound.getParent();
+			Node <K,V> nodeLeft = nodeFound.getLeftChild();
 			if(nodeFound.getDirection() == 'L')
 			{
 				nodeParent.setLeftChild(nodeLeft);
@@ -156,15 +173,15 @@ public class BinaryTree<T> implements Tree<T>
 				nodeParent.setRightChild(nodeLeft);
 			}
 		}		
-		// if no left child then promote the right and repoint it to the removeds left
+		// if no left child then promote the right and re-point it to the removed left
 		else if(!nodeFound.isLeaf() && nodeFound.getLeftChild() == null && nodeFound.getRightChild() != null)
 		{
-			Node <T> nodeParent = nodeFound.getParent();
-			Node <T> rightChild = nodeFound.getRightChild();
+			Node <K,V> nodeParent = nodeFound.getParent();
+			Node <K,V> rightChild = nodeFound.getRightChild();
 			// if has a right child that has a left child then replace with the right childs left child
 			if(rightChild.getLeftChild() != null)
 			{
-				Node <T> leftChild = rightChild.getLeftChild();
+				Node <K,V> leftChild = rightChild.getLeftChild();
 				if(nodeFound.getDirection() == 'L')
 				{
 					nodeParent.setLeftChild(leftChild);
@@ -193,10 +210,13 @@ public class BinaryTree<T> implements Tree<T>
 	}
 
 	
-	public Node<T> find(T value)
+	/**
+	 * 
+	 */
+	public Node<K,V> find(K value)
 	{
 		boolean found = false;
-		Node <T> node = this.root;
+		Node <K,V> node = this.root;
 		
 		while(!found)
 		{
@@ -223,13 +243,16 @@ public class BinaryTree<T> implements Tree<T>
 	}
 
 	
-	public Node<T> findCommonAncestor(T value1, T value2)
+	/**
+	 * 
+	 */
+	public Node<K,V> findCommonAncestor(K value1, K value2)
 	{
-		List <Node <T>> list1 = new ArrayList <Node<T>> ();
-		List <Node <T>> list2 = new ArrayList <Node<T>> ();
+		List <Node <K,V>> list1 = new ArrayList <Node<K,V>> ();
+		List <Node <K,V>> list2 = new ArrayList <Node<K,V>> ();
 		
-		Node<T> node1 = find(value1);
-		Node<T> node2 = find(value2);
+		Node<K,V> node1 = find(value1);
+		Node<K,V> node2 = find(value2);
 		
 		while(node1 != null)
 		{
@@ -243,9 +266,9 @@ public class BinaryTree<T> implements Tree<T>
 			node2 = node2.getParent();
 		}
 		
-		for(Node<T> n1 : list1)
+		for(Node<K,V> n1 : list1)
 		{
-			for(Node<T> n2 : list2)
+			for(Node<K,V> n2 : list2)
 			{
 				if(n1.equals(n2))
 				{
@@ -257,18 +280,44 @@ public class BinaryTree<T> implements Tree<T>
 		return null;
 	}
 
-
 	
-	public List<T> transversePreOrder()
+	/**
+	 * 
+	 */
+	public void clear()
 	{
-		return nextPreOrderNode(getRoot(), new ArrayList <T> ());
+		List <KeyValue<K,V>> list = transverseInOrder();
+		Iterator <KeyValue<K,V>> iterator = list.iterator();
+		while(iterator.hasNext())
+		{
+			KeyValue<K,V> kv = iterator.next();
+			remove(kv.getKey());
+		}
+		
+		root = null;
 	}
 	
-	private List<T> nextPreOrderNode(Node<T> node, List <T> list)
+	
+	/**
+	 * 
+	 */
+	public List<KeyValue<K,V>> transversePreOrder()
+	{
+		return nextPreOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
+	}
+	
+	
+	/**
+	 * 
+	 * @param node
+	 * @param list
+	 * @return
+	 */
+	private List<KeyValue<K,V>> nextPreOrderNode(Node<K,V> node, List <KeyValue<K,V>> list)
 	{
 		if(node != null)
 		{
-			list.addAll(getCenterNodeList(node));
+			list.add(new KeyValue <K,V> (node));
 			nextPreOrderNode(node.getLeftChild(), list);
 			nextPreOrderNode(node.getRightChild(), list);
 		}
@@ -276,17 +325,27 @@ public class BinaryTree<T> implements Tree<T>
 	}
 
 	
-	public List<T> transverseInOrder()
+	/**
+	 * 
+	 */
+	public List<KeyValue<K,V>> transverseInOrder()
 	{
-		return nextInOrderNode(getRoot(), new ArrayList <T> ());
+		return nextInOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
 	}
 	
-	private List<T> nextInOrderNode(Node<T> node, List <T> list)
+	
+	/**
+	 * 
+	 * @param node
+	 * @param list
+	 * @return
+	 */
+	private List<KeyValue<K,V>> nextInOrderNode(Node<K,V> node, List <KeyValue<K,V>> list)
 	{
 		if(node != null)
 		{
 			nextInOrderNode(node.getLeftChild(), list);
-			list.addAll(getCenterNodeList(node));
+			list.add(new KeyValue <K,V> (node));
 			nextInOrderNode(node.getRightChild(), list);
 		}
 		
@@ -294,44 +353,39 @@ public class BinaryTree<T> implements Tree<T>
 	}
 
 
-	public List<T> transversePostOrder()
+	/**
+	 * 
+	 */
+	public List<KeyValue<K,V>> transversePostOrder()
 	{
-		return nextPostOrderNode(getRoot(), new ArrayList <T> ());
+		return nextPostOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
 	}
 	
-	private List<T> nextPostOrderNode(Node<T> node, List<T> list)
+	
+	/**
+	 * 
+	 * @param node
+	 * @param list
+	 * @return
+	 */
+	private List<KeyValue<K,V>> nextPostOrderNode(Node<K,V> node, List<KeyValue<K,V>> list)
 	{
 		if(node != null)
 		{
 			nextPostOrderNode(node.getLeftChild(), list);
 			nextPostOrderNode(node.getRightChild(), list);
-			list.addAll(getCenterNodeList(node));
-		}
-		
-		return list;
-	}
-	
-	private List <T> getCenterNodeList(Node <T> node)
-	{
-		List <T> list = new ArrayList <T> ();
-		
-		if(node != null)
-		{
-			
-			list.add(node.getValue());
-			while(node.getCenterChild() != null)
-			{
-				node = node.getCenterChild();
-				list.add(node.getValue());
-			}
+			list.add(new KeyValue <K,V> (node));
 		}
 		
 		return list;
 	}
 
 	
-	public int nodeDepth(T value) {
-		Node <T> node = find(value);
+	/**
+	 * 
+	 */
+	public int nodeDepth(K value) {
+		Node <K,V> node = find(value);
 		int depth = 0;
 		
 		while(node.hasParent())
@@ -343,26 +397,13 @@ public class BinaryTree<T> implements Tree<T>
 		return depth;
 	}	
 
-	public int getValueCount(T value) {
-		Node <T> node = find(value);
-		int count = 0;
-		
-		if(node != null)
-		{
-			++count;
-			while(node.getCenterChild() != null)
-			{
-				++count;
-				node = node.getCenterChild();
-			}
-		}
-		
-		return count;
-	}
-
-	public T getHighestValue() 
+	
+	/**
+	 * 
+	 */
+	public K getHighestKeyValue() 
 	{
-		Node <T> node = root;
+		Node <K,V> node = root;
 		
 		while(node != null)
 		{
@@ -372,16 +413,20 @@ public class BinaryTree<T> implements Tree<T>
 			}
 			else
 			{
-				return node.getValue();
+				return node.getKey();
 			}
 		}
 		
-		return root.getValue();
+		return root.getKey();
 	}
 	
-	public T getLowestValue()
+	
+	/**
+	 * 
+	 */
+	public K getLowestKeyValue()
 	{
-		Node <T> node = root;
+		Node <K,V> node = root;
 		
 		while(node != null)
 		{
@@ -391,17 +436,21 @@ public class BinaryTree<T> implements Tree<T>
 			}
 			else
 			{
-				return node.getValue();
+				return node.getKey();
 			}
 		}
 		
-		return root.getValue();
+		return root.getKey();
 	}
 	
+	
+	/**
+	 * 
+	 */
 	public String printTree(TransverseType transverse)
 	{
 		StringBuilder builder = new StringBuilder();
-		List <T> list = null;
+		List <KeyValue<K,V>> list = null;
 		
 		switch(transverse)
 		{
@@ -422,14 +471,14 @@ public class BinaryTree<T> implements Tree<T>
 			}
 		}
 		
-		builder.append("{");
+		builder.append("{\n\tList:\n\t[\n");
 				
-		for(T value : list)
+		for(KeyValue <K,V> keyValue : list)
 		{
-			builder.append(value).append(",");
+			builder.append("\t\t\"").append(keyValue.getKey()).append("\":\"").append(keyValue.getValue()).append("\",\n");
 		}
 		
-		builder.append("}");
+		builder.append("\t]\n}");
 		
 		return builder.toString();
 	}

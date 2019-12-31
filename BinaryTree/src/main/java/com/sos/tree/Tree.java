@@ -2,19 +2,18 @@ package com.sos.tree;
 
 import java.util.List;
 
-public interface Tree <T>
+public interface Tree <K,V>
 {
-	public Node <T> getRoot();
-	public char add(T node);
-	public Node<T> remove(T id);
-	public Node<T> find(T id);
-	public Node<T> findCommonAncestor(T value1, T value2);
-	public List <T> transversePreOrder();
-	public List <T> transverseInOrder();
-	public List <T> transversePostOrder();
-	public int nodeDepth(T value);
-	public int getValueCount(T value);
-	public T getHighestValue();
-	public T getLowestValue();
+	public Node <K,V> getRoot();
+	public boolean add(K key, V value);
+	public Node<K,V> remove(K id);
+	public Node<K,V> find(K id);
+	public Node<K,V> findCommonAncestor(K key1, K key2);
+	public List <KeyValue<K,V>> transversePreOrder();
+	public List <KeyValue<K,V>> transverseInOrder();
+	public List <KeyValue<K,V>> transversePostOrder();
+	public int nodeDepth(K key);
+	public K getHighestKeyValue();
+	public K getLowestKeyValue();
 	public String printTree(TransverseType transverse);
 }
