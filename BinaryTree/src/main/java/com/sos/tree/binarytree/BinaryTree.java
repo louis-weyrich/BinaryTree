@@ -4,10 +4,11 @@
 package com.sos.tree.binarytree;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import com.sos.tree.KeyValue;
 import com.sos.tree.Node;
 import com.sos.tree.TransverseType;
 import com.sos.tree.Tree;
@@ -20,6 +21,7 @@ public class BinaryTree<K,V> implements Tree<K,V>
 {
 	
 	private Node <K,V> root;
+	private Comparator <K> comparator;
 
 	
 	/**
@@ -27,7 +29,7 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 */
 	public BinaryTree()
 	{
-		// Do Nothing
+		this.comparator = defaultComparator();
 	}
 	
 	
@@ -37,8 +39,58 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 */
 	public BinaryTree(Node<K,V> rootNode)
 	{
+		this();
 		this.root = rootNode;
 	}
+	
+	
+	/**
+	 * 
+	 */
+	public BinaryTree(Comparator <K> comaparator)
+	{
+		this.comparator = comaparator;
+	}
+	
+	
+	/**
+	 * 
+	 * @param rootNode
+	 */
+	public BinaryTree(Node<K,V> rootNode, Comparator <K> comaparator)
+	{
+		this(comaparator);
+		this.root = rootNode;
+	}
+
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected Comparator<K> defaultComparator()
+	{
+		return new Comparator <K> ()
+		{
+			public int compare(K o1, K o2) {
+				int value = 0;
+				
+				if (o1.hashCode() == o2.hashCode() && o1.equals(o2)) {
+					value = 0;
+				}
+				else if(o1.hashCode() > o2.hashCode())
+				{
+					value = 1;
+				}
+				else if(o1.hashCode() < o2.hashCode())
+				{
+					value = -1;
+				}
+				return value;
+			}
+		};
+	}
+
 	
 	
 	/**
@@ -115,93 +167,100 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	public Node<K,V> remove(K value)
 	{
 		Node <K,V> nodeFound = find(value);
-		if(nodeFound.isroot())
+		if(nodeFound != null)
 		{
-			Node <K,V> rightChild = nodeFound.getRightChild();
-			Node <K,V> leftChild = nodeFound.getLeftChild();
-			
-			if(leftChild != null)
+			if(nodeFound.isroot())
 			{
-				Node <K,V> leftChildsRight = leftChild.getRightChild();
+				Node <K,V> rightChild = nodeFound.getRightChild();
+				Node <K,V> leftChild = nodeFound.getLeftChild();
 				
-				while(leftChildsRight.getRightChild() != null)
+				if(leftChild != null && leftChild.hasChildren())
 				{
-					leftChildsRight = leftChildsRight.getRightChild();
-				}
+					Node <K,V> leftChildsRight = leftChild.getRightChild();
+					
+					while(leftChildsRight != null && leftChildsRight.getRightChild() != null)
+					{
+						leftChildsRight = leftChildsRight.getRightChild();
+					}
+					
+					if(leftChildsRight != null) 
+					{
+						leftChildsRight.setParent(null);
+						this.root = leftChildsRight;
+					}
+					
+					Node <K,V> leftchildsRightLeft = leftChildsRight.getLeftChild();
 				
-				leftChildsRight.setParent(null);
-				this.root = leftChildsRight;
-				Node <K,V> leftchildsRightLeft = leftChildsRight.getLeftChild();
-			
-				while(leftchildsRightLeft != null && leftchildsRightLeft.getLeftChild() != null)
-				{
-					leftchildsRightLeft = leftchildsRightLeft.getLeftChild();
+					while(leftchildsRightLeft != null && leftchildsRightLeft.getLeftChild() != null)
+					{
+						leftchildsRightLeft = leftchildsRightLeft.getLeftChild();
+					}
+				
+					if(leftchildsRightLeft != null) leftchildsRightLeft.setLeftChild(leftChild);
+					leftChildsRight.setRightChild(rightChild);
 				}
-			
-				if(leftchildsRightLeft != null) leftchildsRightLeft.setLeftChild(leftChild);
-				leftChildsRight.setRightChild(rightChild);
+				else if(rightChild != null)
+				{
+					this.root = rightChild;
+				}
 			}
-			else if(rightChild != null)
+			// if leaf null the parents pointer
+			else if(nodeFound.isLeaf())
 			{
-				this.root = rightChild;
-			}
-		}
-		// if leaf null the parents pointer
-		else if(nodeFound.isLeaf())
-		{
-			Node <K,V> nodeParent = nodeFound.getParent();
-			if(nodeFound.getDirection() == 'L')
-			{
-				nodeParent.setLeftChild(null);
-			}
-			else
-			{
-				nodeParent.setRightChild(null);
-			}
-		}
-		// if no right child then promote the left child
-		else if(!nodeFound.isLeaf() && nodeFound.getRightChild() == null && nodeFound.getLeftChild() != null)
-		{
-			Node <K,V> nodeParent = nodeFound.getParent();
-			Node <K,V> nodeLeft = nodeFound.getLeftChild();
-			if(nodeFound.getDirection() == 'L')
-			{
-				nodeParent.setLeftChild(nodeLeft);
-			}
-			else
-			{
-				nodeParent.setRightChild(nodeLeft);
-			}
-		}		
-		// if no left child then promote the right and re-point it to the removed left
-		else if(!nodeFound.isLeaf() && nodeFound.getLeftChild() == null && nodeFound.getRightChild() != null)
-		{
-			Node <K,V> nodeParent = nodeFound.getParent();
-			Node <K,V> rightChild = nodeFound.getRightChild();
-			// if has a right child that has a left child then replace with the right childs left child
-			if(rightChild.getLeftChild() != null)
-			{
-				Node <K,V> leftChild = rightChild.getLeftChild();
+				Node <K,V> nodeParent = nodeFound.getParent();
 				if(nodeFound.getDirection() == 'L')
 				{
-					nodeParent.setLeftChild(leftChild);
+					nodeParent.setLeftChild(null);
 				}
 				else
 				{
-					nodeParent.setRightChild(leftChild);
+					nodeParent.setRightChild(null);
 				}
-				
-				leftChild.setRightChild(rightChild);
 			}
-			else
+			// if no right child then promote the left child
+			else if(!nodeFound.isLeaf() && nodeFound.getRightChild() == null && nodeFound.getLeftChild() != null)
 			{
+				Node <K,V> nodeParent = nodeFound.getParent();
+				Node <K,V> nodeLeft = nodeFound.getLeftChild();
 				if(nodeFound.getDirection() == 'L')
 				{
-					nodeParent.setRightChild(rightChild);
+					nodeParent.setLeftChild(nodeLeft);
 				}
 				else
 				{
-					nodeParent.setLeftChild(rightChild);
+					nodeParent.setRightChild(nodeLeft);
+				}
+			}		
+			// if no left child then promote the right and re-point it to the removed left
+			else if(!nodeFound.isLeaf() && nodeFound.getLeftChild() == null && nodeFound.getRightChild() != null)
+			{
+				Node <K,V> nodeParent = nodeFound.getParent();
+				Node <K,V> rightChild = nodeFound.getRightChild();
+				// if has a right child that has a left child then replace with the right childs left child
+				if(rightChild.getLeftChild() != null)
+				{
+					Node <K,V> leftChild = rightChild.getLeftChild();
+					if(nodeFound.getDirection() == 'L')
+					{
+						nodeParent.setLeftChild(leftChild);
+					}
+					else
+					{
+						nodeParent.setRightChild(leftChild);
+					}
+					
+					leftChild.setRightChild(rightChild);
+				}
+				else
+				{
+					if(nodeFound.getDirection() == 'L')
+					{
+						nodeParent.setRightChild(rightChild);
+					}
+					else
+					{
+						nodeParent.setLeftChild(rightChild);
+					}
 				}
 			}
 		}
@@ -218,7 +277,7 @@ public class BinaryTree<K,V> implements Tree<K,V>
 		boolean found = false;
 		Node <K,V> node = this.root;
 		
-		while(!found)
+		while(!found && node != null)
 		{
 			int result = node.compareTo(value);
 			if(result == 0)
@@ -286,11 +345,11 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 */
 	public void clear()
 	{
-		List <KeyValue<K,V>> list = transverseInOrder();
-		Iterator <KeyValue<K,V>> iterator = list.iterator();
+		List <Map.Entry<K,V>> list = transverseInOrder();
+		Iterator <Map.Entry<K,V>> iterator = list.iterator();
 		while(iterator.hasNext())
 		{
-			KeyValue<K,V> kv = iterator.next();
+			Map.Entry<K,V> kv = iterator.next();
 			remove(kv.getKey());
 		}
 		
@@ -301,9 +360,9 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	/**
 	 * 
 	 */
-	public List<KeyValue<K,V>> transversePreOrder()
+	public List<Map.Entry<K,V>> transversePreOrder()
 	{
-		return nextPreOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
+		return nextPreOrderNode(getRoot(), new ArrayList <Map.Entry<K,V>> ());
 	}
 	
 	
@@ -313,11 +372,11 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 * @param list
 	 * @return
 	 */
-	private List<KeyValue<K,V>> nextPreOrderNode(Node<K,V> node, List <KeyValue<K,V>> list)
+	private List<Map.Entry<K,V>> nextPreOrderNode(Node<K,V> node, List <Map.Entry<K,V>> list)
 	{
 		if(node != null)
 		{
-			list.add(new KeyValue <K,V> (node));
+			list.add(new MapEntry <K,V> (node));
 			nextPreOrderNode(node.getLeftChild(), list);
 			nextPreOrderNode(node.getRightChild(), list);
 		}
@@ -328,9 +387,9 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	/**
 	 * 
 	 */
-	public List<KeyValue<K,V>> transverseInOrder()
+	public List<Map.Entry<K,V>> transverseInOrder()
 	{
-		return nextInOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
+		return nextInOrderNode(getRoot(), new ArrayList <Map.Entry<K,V>> ());
 	}
 	
 	
@@ -340,12 +399,12 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 * @param list
 	 * @return
 	 */
-	private List<KeyValue<K,V>> nextInOrderNode(Node<K,V> node, List <KeyValue<K,V>> list)
+	private List<Map.Entry<K,V>> nextInOrderNode(Node<K,V> node, List <Map.Entry<K,V>> list)
 	{
 		if(node != null)
 		{
 			nextInOrderNode(node.getLeftChild(), list);
-			list.add(new KeyValue <K,V> (node));
+			list.add(new MapEntry <K,V> (node));
 			nextInOrderNode(node.getRightChild(), list);
 		}
 		
@@ -356,9 +415,9 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	/**
 	 * 
 	 */
-	public List<KeyValue<K,V>> transversePostOrder()
+	public List<Map.Entry<K,V>> transversePostOrder()
 	{
-		return nextPostOrderNode(getRoot(), new ArrayList <KeyValue<K,V>> ());
+		return nextPostOrderNode(getRoot(), new ArrayList <Map.Entry<K,V>> ());
 	}
 	
 	
@@ -368,13 +427,13 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	 * @param list
 	 * @return
 	 */
-	private List<KeyValue<K,V>> nextPostOrderNode(Node<K,V> node, List<KeyValue<K,V>> list)
+	private List<Map.Entry<K,V>> nextPostOrderNode(Node<K,V> node, List<Map.Entry<K,V>> list)
 	{
 		if(node != null)
 		{
 			nextPostOrderNode(node.getLeftChild(), list);
 			nextPostOrderNode(node.getRightChild(), list);
-			list.add(new KeyValue <K,V> (node));
+			list.add(new MapEntry <K,V> (node));
 		}
 		
 		return list;
@@ -450,7 +509,7 @@ public class BinaryTree<K,V> implements Tree<K,V>
 	public String printTree(TransverseType transverse)
 	{
 		StringBuilder builder = new StringBuilder();
-		List <KeyValue<K,V>> list = null;
+		List <Map.Entry<K,V>> list = null;
 		
 		switch(transverse)
 		{
@@ -473,7 +532,7 @@ public class BinaryTree<K,V> implements Tree<K,V>
 		
 		builder.append("{\n\tList:\n\t[\n");
 				
-		for(KeyValue <K,V> keyValue : list)
+		for(Map.Entry <K,V> keyValue : list)
 		{
 			builder.append("\t\t\"").append(keyValue.getKey()).append("\":\"").append(keyValue.getValue()).append("\",\n");
 		}
@@ -481,6 +540,50 @@ public class BinaryTree<K,V> implements Tree<K,V>
 		builder.append("\t]\n}");
 		
 		return builder.toString();
+	}
+	
+	
+	/**
+	 * 
+	 * @author louisweyrich
+	 *
+	 * @param <K>
+	 * @param <V>
+	 */
+	private class MapEntry <K,V> implements Map.Entry<K, V>
+	{
+		
+		private K key;
+		private V value;
+		
+		public MapEntry(Node <K,V> node)
+		{
+			this.key = node.getKey();
+			this.value = node.getValue();
+		}
+
+
+
+		@Override
+		public K getKey()
+		{
+			return key;
+		}
+
+		@Override
+		public V getValue()
+		{
+			return value;
+		}
+
+		@Override
+		public V setValue(V value)
+		{
+			V tempValue = this.value;
+			this.value = value;
+			return tempValue;
+		}
+		
 	}
 
 }

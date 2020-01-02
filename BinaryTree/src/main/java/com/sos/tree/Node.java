@@ -235,7 +235,7 @@ public class Node<K, V> implements Comparable <K>
 	@Override
 	public String toString()
 	{
-		return key.toString()+direction+"("+((parent != null)?parent.getKey():"*")+")";
+		return key.toString()+direction+"("+((value != null)?value.toString():"*")+")";
 	}
 
 	

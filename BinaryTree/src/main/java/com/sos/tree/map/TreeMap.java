@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sos.tree.KeyValue;
 import com.sos.tree.Node;
 import com.sos.tree.binarytree.BinaryTree;
 
@@ -45,7 +44,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	{
 		this.arraySize = initialArraySize;
 		this.keyComparator = this.defaultComparator();
-		this.data = (BinaryTree<K,V>[])new Object [arraySize];
+		this.data = (BinaryTree<K,V>[])new BinaryTree [arraySize];
 	}
 
 	/**
@@ -142,7 +141,23 @@ public class TreeMap<K, V> implements Map<K, V>
 	 */
 	public boolean containsValue(Object value)
 	{
-		// TODO Auto-generated method stub
+		for(BinaryTree <K,V> tree : data)
+		{
+			if(tree != null)
+			{
+				List <Map.Entry<K, V>> list = tree.transverseInOrder();
+				Iterator<Map.Entry<K, V>> iterator =  list.iterator();
+				while(iterator.hasNext())
+				{
+					Map.Entry<K, V> entry = iterator.next();
+					if(entry.getValue().equals(value))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		
 		return false;
 	}
 
@@ -187,13 +202,26 @@ public class TreeMap<K, V> implements Map<K, V>
 				if(tree != null)
 				{
 					Node <K,V> node = tree.find(key);
+					V tempvalue = (node != null)?node.getValue() : null;
 					tree.add(key, value);
 					if(node != null)
 					{
-						return node.getValue();
+						return tempvalue;
+					}
+					else
+					{
+						size++;
 					}
 				}
+				else
+				{
+					BinaryTree <K,V> temptree = new BinaryTree <K,V>(keyComparator);
+					temptree.add(key, value);
+					this.data[hash] = temptree;
+					size++;
+				}
 			}
+			
 		}
 		
 		return null;
@@ -216,6 +244,7 @@ public class TreeMap<K, V> implements Map<K, V>
 					Node <K,V> node =  tree.remove((K)key);
 					if(node != null)
 					{
+						this.size--;
 						return node.getValue();
 					}
 				}
@@ -250,12 +279,12 @@ public class TreeMap<K, V> implements Map<K, V>
 	public void clear()
 	{
 		this.size = 0;
-		for(BinaryTree<K,V> tree : data)
-		{
-			tree.clear();
-		}
-		
-		data = (BinaryTree<K,V>[])new Object [arraySize];
+//		for(BinaryTree<K,V> tree : data)
+//		{
+//			tree.clear();
+//		}
+//		
+		data = (BinaryTree<K,V>[])new BinaryTree [arraySize];
 	}
 
 	/**
@@ -267,9 +296,12 @@ public class TreeMap<K, V> implements Map<K, V>
 		
 		for(BinaryTree<K,V> tree : data)
 		{
-			 List <KeyValue<K,V>> list = tree.transverseInOrder();
-			 returnSet.addAll(
-				list.stream().map(KeyValue::getKey).collect(Collectors.toList()));
+			if(tree != null)
+			{
+				 List <Map.Entry<K,V>> list = tree.transverseInOrder();
+				 returnSet.addAll(
+					list.stream().map(Map.Entry::getKey).collect(Collectors.toList()));
+			}
 		}
 		
 		return returnSet;
@@ -284,9 +316,12 @@ public class TreeMap<K, V> implements Map<K, V>
 		
 		for(BinaryTree<K,V> tree : data)
 		{
-			List <KeyValue<K,V>> list = tree.transverseInOrder();
-			returnList.addAll(
-				list.stream().map(KeyValue::getValue).collect(Collectors.toList()));
+			if(tree != null)
+			{
+				List <Map.Entry<K,V>> list = tree.transverseInOrder();
+				returnList.addAll(
+					list.stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+			}
 		}
 		
 		return returnList;
@@ -298,8 +333,17 @@ public class TreeMap<K, V> implements Map<K, V>
 	 */
 	public Set<Entry<K, V>> entrySet()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set <Map.Entry<K,V>> set = new HashSet <Map.Entry<K,V>> ();
+		for(int index = 0; index < this.arraySize; index++)
+		{
+			BinaryTree <K,V> tree = data[0];
+			if(tree != null)
+			{
+				set.addAll(tree.transversePreOrder());
+			}
+		}
+		
+		return set;
 	}
 
 }

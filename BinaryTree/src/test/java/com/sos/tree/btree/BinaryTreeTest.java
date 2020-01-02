@@ -20,14 +20,23 @@ public class BinaryTreeTest
 		Tree <Integer,Integer> tree = new BinaryTree <Integer,Integer> ();
 		RandomUtil rand = new RandomUtil(10, 99);
 		System.out.print("Input:      {");
+		Integer testValue = null;
 		for(int index = 0; index < 40; index++)
 		{
 			Integer key = rand.generateUniqueRandom();
 			Integer value = rand.generateRandom();
 			boolean inserted = tree.add(key,value);
 			System.out.print(value+"("+inserted+"),");
+			if(index == 20)testValue = key;
 		}
+		
+		
+		
 		System.out.println("}\n\n");
+		
+		Node <Integer,Integer> findValue = tree.find(testValue);
+		
+		System.out.println("found("+testValue.toString()+")  = "+findValue.toString());
 		
 		System.out.println("PRE_ORDER:  "+tree.printTree(TransverseType.PRE_ORDER)+"\n\n");
 		System.out.println("IN_ORDER:   "+tree.printTree(TransverseType.IN_ORDER)+"\n\n");
