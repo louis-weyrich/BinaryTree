@@ -279,11 +279,6 @@ public class TreeMap<K, V> implements Map<K, V>
 	public void clear()
 	{
 		this.size = 0;
-//		for(BinaryTree<K,V> tree : data)
-//		{
-//			tree.clear();
-//		}
-//		
 		data = (BinaryTree<K,V>[])new BinaryTree [arraySize];
 	}
 
