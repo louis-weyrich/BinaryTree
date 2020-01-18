@@ -290,6 +290,7 @@ public class MyMap <K,V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void putAll(Map<? extends K, ? extends V> map) 
 	{
 		Iterator <? extends Entry> iterator = map.entrySet().iterator();
@@ -439,23 +440,28 @@ public class MyMap <K,V> implements Map<K, V>
 			this.parent = parent;
 		}
 		
-		public ListNode getChild() {
+		public ListNode getChild() 
+		{
 			return child;
 		}
 
-		public void setChild(ListNode child) {
+		public void setChild(ListNode child) 
+		{
 			this.child = child;
 		}
 
-		public ListNode getParent() {
+		public ListNode getParent() 
+		{
 			return parent;
 		}
 
-		public void setParent(ListNode parent) {
+		public void setParent(ListNode parent) 
+		{
 			this.parent = parent;
 		}
 
-		public void setEntry(Entry<K, V> entry) {
+		public void setEntry(Entry<K, V> entry) 
+		{
 			this.entry = entry;
 		}
 

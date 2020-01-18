@@ -53,7 +53,7 @@ public class Node<K, V> implements Comparable <K>
 		if(obj == null)
 			return Integer.MAX_VALUE;
 		
-		if(obj.hashCode() == key.hashCode() && obj.equals(this.key))
+		if(obj.hashCode() == key.hashCode() && this.key.equals(obj))
 			return 0;
 		else if(obj.hashCode() > this.key.hashCode())
 			return 1;

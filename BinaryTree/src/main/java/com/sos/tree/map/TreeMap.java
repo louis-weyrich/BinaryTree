@@ -40,6 +40,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public TreeMap(int initialArraySize)
 	{
 		this.arraySize = initialArraySize;
@@ -113,6 +114,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean containsKey(Object key)
 	{
 		if(key != null)
@@ -164,6 +166,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public V get(Object key)
 	{
 		if(key != null)
@@ -230,6 +233,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public V remove(Object key)
 	{
 		if(key != null)
@@ -257,6 +261,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void putAll(Map<? extends K, ? extends V> map)
 	{
 		if(map != null)
@@ -276,6 +281,7 @@ public class TreeMap<K, V> implements Map<K, V>
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void clear()
 	{
 		this.size = 0;
